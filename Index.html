@@ -1,0 +1,117 @@
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AluraGeek</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+</head>
+<body>
+  <div class="banner-top">
+    <img src="Assets/Banner.png" alt="Banner superior">
+  </div>
+
+  <div class="container">
+    <div class="left-side">
+      <h2>Mais Produtos</h2>
+      <div id="product-container" class="product-container">
+        <!-- Produtos serão inseridos aqui via JavaScript -->
+      </div>
+    </div>
+    <div class="right-side">
+      <h2>Adicionar Produto</h2>
+      <form id="product-form">
+        <input type="text" id="product-name" placeholder="Nome..." required>
+        <input type="number" id="product-price" placeholder="Preço..." required>
+        <input type="text" id="product-image-url" placeholder="URL da imagem..." required>
+        <div class="btn-formulario">
+          <button type="submit">Enviar</button>
+          <button type="reset">Limpar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="banner-bottom">
+    <img src="Assets/Rodape.png" alt="Banner inferior">
+  </div>
+
+  <script>
+    const productContainer = document.getElementById('product-container');
+    const productForm = document.getElementById('product-form');
+
+    // Função para carregar produtos do localStorage
+    const loadProducts = () => {
+        const products = JSON.parse(localStorage.getItem('products')) || [];
+        products.forEach(product => {
+            displayProduct(product);
+        });
+    };
+
+    // Função para exibir um produto
+    const displayProduct = (product) => {
+        const productElement = document.createElement('div');
+        productElement.classList.add('product-item');
+        productElement.innerHTML = `
+            <img src="${product.image}" alt="${product.name}">
+            <h3>${product.name}</h3>
+            <p>R$ ${product.price.toFixed(2)}</p>
+            <button class="delete-btn">Excluir</button>
+        `;
+
+        const deleteBtn = productElement.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', () => {
+            productContainer.removeChild(productElement);
+            removeProductFromStorage(product.name); // Remove do localStorage
+        });
+
+        productContainer.appendChild(productElement);
+    };
+
+    // Função para salvar produto no localStorage
+    const saveProductToStorage = (product) => {
+        const products = JSON.parse(localStorage.getItem('products')) || [];
+        products.push(product);
+        localStorage.setItem('products', JSON.stringify(products));
+    };
+
+    // Função para remover produto do localStorage
+    const removeProductFromStorage = (productName) => {
+        let products = JSON.parse(localStorage.getItem('products')) || [];
+        products = products.filter(product => product.name !== productName);
+        localStorage.setItem('products', JSON.stringify(products));
+    };
+
+    // Carregar produtos ao iniciar a página
+    document.addEventListener('DOMContentLoaded', () => {
+        loadProducts();
+    });
+
+    // Adicionar produto ao enviar o formulário
+    productForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const nameInput = document.getElementById('product-name');
+        const priceInput = document.getElementById('product-price');
+        const imageInput = document.getElementById('product-image-url');
+
+        const name = nameInput.value;
+        const price = parseFloat(priceInput.value);
+        const image = imageInput.value;
+
+        const product = { name, price, image }; // Cria um objeto de produto
+        displayProduct(product); // Exibe o produto na tela
+        saveProductToStorage(product); // Salva o produto no localStorage
+
+        nameInput.value = '';
+        priceInput.value = '';
+        imageInput.value = '';
+    });
+  </script>
+</body>
+</html>
+
